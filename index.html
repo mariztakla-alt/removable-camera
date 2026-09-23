@@ -79,9 +79,8 @@
   <option value="">Select Step</option>
   <option value="Primary Impression">Primary Impression</option>
   <option value="Secondary Impression">Secondary Impression</option>
-  <option value="Bite">Bite</option>
-  <option value="Jaw Relation">Jaw Relation</option>
   <option value="Metal Try-in">Metal Try-in</option>
+  <option value="Bite Registration">Bite Registration</option>
   <option value="Try-in">Try-in</option>
   <option value="Delivery">Delivery</option>
 </select>
@@ -95,8 +94,31 @@
   muted>
 </video>
 
+<canvas
+  id="canvas"
+  style="display:none;">
+</canvas>
+
+<img
+  id="preview"
+  alt="Photo preview"
+>
+
+<br>
+
+<button
+  id="takeButton"
+  disabled>
+  📸 TAKE PHOTO
+</button>
+
+<p id="status">Starting camera...</p>
+
+<script>
+
 const SCRIPT_URL =
   "https://script.google.com/a/macros/su.edu.eg/s/AKfycbzB12MPX_m9rjJU-Ja2Fj3HJAxJzcW6Jh97qHXMlc3Dps2f0DhCz9KfL0buqSatC2xI/exec";
+
 
 const video =
   document.getElementById("video");
@@ -121,8 +143,10 @@ async function startCamera() {
 
   try {
 
-    if (!navigator.mediaDevices ||
-        !navigator.mediaDevices.getUserMedia) {
+    if (
+      !navigator.mediaDevices ||
+      !navigator.mediaDevices.getUserMedia
+    ) {
 
       throw new Error(
         "Camera API is not supported."
@@ -205,7 +229,9 @@ async function takePhoto() {
 
   if (!studentID) {
 
-    alert("Please enter your Student ID.");
+    alert(
+      "Please enter your Student ID."
+    );
 
     return;
 
@@ -214,7 +240,9 @@ async function takePhoto() {
 
   if (!step) {
 
-    alert("Please select the step.");
+    alert(
+      "Please select the step."
+    );
 
     return;
 
@@ -329,6 +357,7 @@ async function takePhoto() {
   }
 
 }
+
 
 startCamera();
 
