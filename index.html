@@ -66,10 +66,6 @@
       border-radius: 12px;
     }
 
-    /* ==============================
-       SUBMISSION STATUS
-       ============================== */
-
     #submissionBox {
       width: 90%;
       max-width: 400px;
@@ -105,9 +101,16 @@
       color: #777;
     }
 
-    #checkStatusButton {
+    #duplicateWarning {
+      display: none;
       width: 90%;
       max-width: 400px;
+      margin: 15px auto;
+      padding: 14px;
+      box-sizing: border-box;
+      border-radius: 8px;
+      background: #fff3cd;
+      font-weight: bold;
     }
 
   </style>
@@ -123,10 +126,6 @@
 <p>Live Photo Verification</p>
 
 
-<!-- ==============================
-     STUDENT ID
-     ============================== -->
-
 <input
   type="text"
   id="studentID"
@@ -134,10 +133,6 @@
   autocomplete="off"
 >
 
-
-<!-- ==============================
-     STEP
-     ============================== -->
 
 <select id="step">
 
@@ -175,10 +170,6 @@
 <br>
 
 
-<!-- ==============================
-     CHECK STATUS
-     ============================== -->
-
 <button
   id="checkStatusButton"
   onclick="checkSubmissionStatus()"
@@ -188,10 +179,6 @@
 
 </button>
 
-
-<!-- ==============================
-     SUBMISSION STATUS BOX
-     ============================== -->
 
 <div
   id="submissionBox"
@@ -207,9 +194,8 @@
 </div>
 
 
-<!-- ==============================
-     CAMERA
-     ============================== -->
+<div id="duplicateWarning"></div>
+
 
 <video
   id="video"
@@ -284,15 +270,24 @@ const submissionBox =
 const submissionList =
   document.getElementById("submissionList");
 
+const duplicateWarning =
+  document.getElementById("duplicateWarning");
+
 
 // =====================================================
-// CAMERA
+// VARIABLES
 // =====================================================
 
 let cameraReady = false;
 
 let stream = null;
 
+let submittedSteps = [];
+
+
+// =====================================================
+// CAMERA
+// =====================================================
 
 async function startCamera() {
 
@@ -427,6 +422,21 @@ async function takePhoto() {
   }
 
 
+  // ================================================
+  // CHECK IF THIS STEP WAS ALREADY SUBMITTED
+  // ================================================
+
+  if (
+    submittedSteps.includes(step)
+  ) {
+
+    showDuplicateWarning(step);
+
+    return;
+
+  }
+
+
   if (
     video.videoWidth === 0 ||
     video.videoHeight === 0
@@ -538,6 +548,22 @@ async function takePhoto() {
       false;
 
 
+    // Add the step locally
+    // so the student cannot submit it again
+    if (
+      !submittedSteps.includes(step)
+    ) {
+
+      submittedSteps.push(step);
+
+    }
+
+
+    displaySubmissionStatus(
+      submittedSteps
+    );
+
+
   }
 
   catch (error) {
@@ -588,6 +614,10 @@ function checkSubmissionStatus() {
     "<p>Checking your submissions...</p>";
 
 
+  duplicateWarning.style.display =
+    "none";
+
+
   const callbackName =
     "statusCallback_" +
     Date.now();
@@ -611,8 +641,12 @@ function checkSubmissionStatus() {
         }
 
 
+        submittedSteps =
+          result.submittedSteps || [];
+
+
         displaySubmissionStatus(
-          result.submittedSteps
+          submittedSteps
         );
 
 
@@ -720,6 +754,45 @@ function displaySubmissionStatus(
     html;
 
 }
+
+
+// =====================================================
+// DUPLICATE WARNING
+// =====================================================
+
+function showDuplicateWarning(step) {
+
+  duplicateWarning.innerText =
+    "⚠️ " +
+    step +
+    " has already been submitted. " +
+    "You cannot submit this step again.";
+
+  duplicateWarning.style.display =
+    "block";
+
+  status.innerText =
+    "This step has already been submitted.";
+
+}
+
+
+// =====================================================
+// HIDE WARNING WHEN STEP CHANGES
+// =====================================================
+
+document
+  .getElementById("step")
+  .addEventListener(
+    "change",
+    function() {
+
+      duplicateWarning.style.display =
+        "none";
+
+    }
+  );
+
 
 </script>
 
