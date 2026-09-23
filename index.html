@@ -1,12 +1,15 @@
-```html
 <!DOCTYPE html>
 <html>
+
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1">
 
   <title>Removable Prosthodontics</title>
 
   <style>
+
     body {
       font-family: Arial, sans-serif;
       text-align: center;
@@ -19,7 +22,9 @@
       margin-bottom: 5px;
     }
 
-    input, select, button {
+    input,
+    select,
+    button {
       width: 90%;
       max-width: 400px;
       padding: 14px;
@@ -60,13 +65,67 @@
       margin: 15px auto;
       border-radius: 12px;
     }
+
+    /* ==============================
+       SUBMISSION STATUS
+       ============================== */
+
+    #submissionBox {
+      width: 90%;
+      max-width: 400px;
+      margin: 25px auto;
+      padding: 18px;
+      background: white;
+      border-radius: 12px;
+      box-sizing: border-box;
+      text-align: left;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    #submissionBox h3 {
+      text-align: center;
+      margin-top: 0;
+    }
+
+    .stepStatus {
+      padding: 10px 5px;
+      font-size: 16px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .stepStatus:last-child {
+      border-bottom: none;
+    }
+
+    .submitted {
+      font-weight: bold;
+    }
+
+    .notSubmitted {
+      color: #777;
+    }
+
+    #checkStatusButton {
+      width: 90%;
+      max-width: 400px;
+    }
+
   </style>
+
 </head>
+
 
 <body>
 
+
 <h2>Removable Prosthodontics</h2>
+
 <p>Live Photo Verification</p>
+
+
+<!-- ==============================
+     STUDENT ID
+     ============================== -->
 
 <input
   type="text"
@@ -75,17 +134,82 @@
   autocomplete="off"
 >
 
+
+<!-- ==============================
+     STEP
+     ============================== -->
+
 <select id="step">
-  <option value="">Select Step</option>
-  <option value="Primary Impression">Primary Impression</option>
-  <option value="Secondary Impression">Secondary Impression</option>
-  <option value="Metal Try-in">Metal Try-in</option>
-  <option value="Bite Registration">Bite Registration</option>
-  <option value="Try-in">Try-in</option>
-  <option value="Delivery">Delivery</option>
+
+  <option value="">
+    Select Step
+  </option>
+
+  <option value="Primary Impression">
+    Primary Impression
+  </option>
+
+  <option value="Secondary Impression">
+    Secondary Impression
+  </option>
+
+  <option value="Metal Try-in">
+    Metal Try-in
+  </option>
+
+  <option value="Bite Registration">
+    Bite Registration
+  </option>
+
+  <option value="Try-in">
+    Try-in
+  </option>
+
+  <option value="Delivery">
+    Delivery
+  </option>
+
 </select>
 
+
 <br>
+
+
+<!-- ==============================
+     CHECK STATUS
+     ============================== -->
+
+<button
+  id="checkStatusButton"
+  onclick="checkSubmissionStatus()"
+>
+
+  📋 CHECK MY SUBMISSION STATUS
+
+</button>
+
+
+<!-- ==============================
+     SUBMISSION STATUS BOX
+     ============================== -->
+
+<div
+  id="submissionBox"
+  style="display:none;"
+>
+
+  <h3>
+    Submission Status
+  </h3>
+
+  <div id="submissionList"></div>
+
+</div>
+
+
+<!-- ==============================
+     CAMERA
+     ============================== -->
 
 <video
   id="video"
@@ -94,22 +218,50 @@
   muted>
 </video>
 
-<canvas id="canvas" style="display:none;"></canvas>
 
-<img id="preview">
+<canvas
+  id="canvas"
+  style="display:none;">
+</canvas>
+
+
+<img
+  id="preview"
+>
+
 
 <br>
 
-<button id="takeButton" disabled>
+
+<button
+  id="takeButton"
+  disabled
+>
+
   📸 TAKE PHOTO
+
 </button>
 
-<p id="status">Starting camera...</p>
+
+<p id="status">
+  Starting camera...
+</p>
+
 
 <script>
 
+
+// =====================================================
+// GOOGLE APPS SCRIPT WEB APP URL
+// =====================================================
+
 const SCRIPT_URL =
   "https://script.google.com/a/macros/su.edu.eg/s/AKfycbzB12MPX_m9rjJU-Ja2Fj3HJAxJzcW6Jh97qHXMlc3Dps2f0DhCz9KfL0buqSatC2xI/exec";
+
+
+// =====================================================
+// ELEMENTS
+// =====================================================
 
 const video =
   document.getElementById("video");
@@ -126,7 +278,19 @@ const takeButton =
 const status =
   document.getElementById("status");
 
+const submissionBox =
+  document.getElementById("submissionBox");
+
+const submissionList =
+  document.getElementById("submissionList");
+
+
+// =====================================================
+// CAMERA
+// =====================================================
+
 let cameraReady = false;
+
 let stream = null;
 
 
@@ -134,14 +298,17 @@ async function startCamera() {
 
   try {
 
-    if (!navigator.mediaDevices ||
-        !navigator.mediaDevices.getUserMedia) {
+    if (
+      !navigator.mediaDevices ||
+      !navigator.mediaDevices.getUserMedia
+    ) {
 
       throw new Error(
         "Camera API is not supported."
       );
 
     }
+
 
     stream =
       await navigator.mediaDevices.getUserMedia({
@@ -156,24 +323,37 @@ async function startCamera() {
 
       });
 
-    video.srcObject = stream;
+
+    video.srcObject =
+      stream;
+
 
     await video.play();
 
-    cameraReady = true;
 
-    takeButton.disabled = false;
+    cameraReady =
+      true;
+
+
+    takeButton.disabled =
+      false;
+
 
     status.innerText =
       "✅ Camera ready. Take the photo.";
+
 
   }
 
   catch (error) {
 
-    cameraReady = false;
+    cameraReady =
+      false;
 
-    takeButton.disabled = true;
+
+    takeButton.disabled =
+      true;
+
 
     status.innerText =
       "❌ Camera error: " +
@@ -186,6 +366,13 @@ async function startCamera() {
 }
 
 
+startCamera();
+
+
+// =====================================================
+// TAKE PHOTO
+// =====================================================
+
 takeButton.addEventListener(
   "click",
   takePhoto
@@ -196,7 +383,9 @@ async function takePhoto() {
 
   if (!cameraReady) {
 
-    alert("Camera is not ready.");
+    alert(
+      "Camera is not ready."
+    );
 
     return;
 
@@ -218,7 +407,9 @@ async function takePhoto() {
 
   if (!studentID) {
 
-    alert("Please enter your Student ID.");
+    alert(
+      "Please enter your Student ID."
+    );
 
     return;
 
@@ -227,7 +418,9 @@ async function takePhoto() {
 
   if (!step) {
 
-    alert("Please select the step.");
+    alert(
+      "Please select the step."
+    );
 
     return;
 
@@ -250,6 +443,7 @@ async function takePhoto() {
 
   canvas.width =
     video.videoWidth;
+
 
   canvas.height =
     video.videoHeight;
@@ -282,6 +476,7 @@ async function takePhoto() {
   preview.src =
     imageData;
 
+
   preview.style.display =
     "block";
 
@@ -289,17 +484,21 @@ async function takePhoto() {
   status.innerText =
     "Uploading...";
 
+
   takeButton.disabled =
     true;
 
 
   const data = {
 
-    studentID: studentID,
+    studentID:
+      studentID,
 
-    step: step,
+    step:
+      step,
 
-    photo: base64
+    photo:
+      base64
 
   };
 
@@ -309,6 +508,7 @@ async function takePhoto() {
     const formData =
       new URLSearchParams();
 
+
     formData.append(
       "data",
       JSON.stringify(data)
@@ -316,17 +516,27 @@ async function takePhoto() {
 
 
     await fetch(
+
       SCRIPT_URL,
+
       {
         method: "POST",
+
         mode: "no-cors",
+
         body: formData
       }
+
     );
 
 
     status.innerText =
       "✅ Photo submitted successfully.";
+
+
+    takeButton.disabled =
+      false;
+
 
   }
 
@@ -336,6 +546,7 @@ async function takePhoto() {
       "❌ Upload failed: " +
       error.message;
 
+
     takeButton.disabled =
       false;
 
@@ -344,10 +555,175 @@ async function takePhoto() {
 }
 
 
-startCamera();
+// =====================================================
+// CHECK SUBMISSION STATUS
+// =====================================================
+
+function checkSubmissionStatus() {
+
+
+  const studentID =
+    document
+      .getElementById("studentID")
+      .value
+      .trim();
+
+
+  if (!studentID) {
+
+    alert(
+      "Please enter your Student ID first."
+    );
+
+    return;
+
+  }
+
+
+  submissionBox.style.display =
+    "block";
+
+
+  submissionList.innerHTML =
+    "<p>Checking your submissions...</p>";
+
+
+  const callbackName =
+    "statusCallback_" +
+    Date.now();
+
+
+  window[callbackName] =
+    function(result) {
+
+
+      try {
+
+        if (result.error) {
+
+          submissionList.innerHTML =
+            "<p>❌ " +
+            result.error +
+            "</p>";
+
+          return;
+
+        }
+
+
+        displaySubmissionStatus(
+          result.submittedSteps
+        );
+
+
+      }
+
+      finally {
+
+        delete window[callbackName];
+
+      }
+
+    };
+
+
+  const script =
+    document.createElement("script");
+
+
+  script.src =
+    SCRIPT_URL +
+    "?studentID=" +
+    encodeURIComponent(studentID) +
+    "&callback=" +
+    callbackName;
+
+
+  script.onerror =
+    function() {
+
+      submissionList.innerHTML =
+        "<p>❌ Could not check submission status.</p>";
+
+      delete window[callbackName];
+
+    };
+
+
+  document.body.appendChild(
+    script
+  );
+
+}
+
+
+// =====================================================
+// DISPLAY STATUS
+// =====================================================
+
+function displaySubmissionStatus(
+  submittedSteps
+) {
+
+
+  const steps = [
+
+    "Primary Impression",
+
+    "Secondary Impression",
+
+    "Metal Try-in",
+
+    "Bite Registration",
+
+    "Try-in",
+
+    "Delivery"
+
+  ];
+
+
+  let html = "";
+
+
+  steps.forEach(
+    function(step) {
+
+
+      if (
+        submittedSteps.includes(step)
+      ) {
+
+        html +=
+          '<div class="stepStatus submitted">' +
+          '✅ ' +
+          step +
+          '</div>';
+
+      }
+
+      else {
+
+        html +=
+          '<div class="stepStatus notSubmitted">' +
+          '⬜ ' +
+          step +
+          '</div>';
+
+      }
+
+    }
+  );
+
+
+  submissionList.innerHTML =
+    html;
+
+}
 
 </script>
 
+
 </body>
+
 </html>
-```
