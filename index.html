@@ -1,0 +1,351 @@
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Removable Prosthodontics</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      margin: 0;
+      background: #f7f7f7;
+    }
+
+    h2 {
+      margin-bottom: 5px;
+    }
+
+    input, select, button {
+      width: 90%;
+      max-width: 400px;
+      padding: 14px;
+      margin: 8px;
+      font-size: 17px;
+      box-sizing: border-box;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    video {
+      width: 95%;
+      max-width: 500px;
+      margin-top: 15px;
+      border-radius: 12px;
+      background: black;
+    }
+
+    button {
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    #status {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    #preview {
+      display: none;
+      width: 95%;
+      max-width: 500px;
+      margin: 15px auto;
+      border-radius: 12px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>Removable Prosthodontics</h2>
+<p>Live Photo Verification</p>
+
+<input
+  type="text"
+  id="studentID"
+  placeholder="Enter Student ID"
+  autocomplete="off"
+>
+
+<select id="step">
+  <option value="">Select Step</option>
+  <option value="Primary Impression">Primary Impression</option>
+  <option value="Secondary Impression">Secondary Impression</option>
+  <option value="Bite">Bite</option>
+  <option value="Jaw Relation">Jaw Relation</option>
+  <option value="Try-in">Try-in</option>
+</select>
+
+<br>
+
+<video
+  id="video"
+  autoplay
+  playsinline
+  muted>
+</video>
+
+<canvas id="canvas" style="display:none;"></canvas>
+
+<img id="preview">
+
+<br>
+
+<button id="takeButton" disabled>
+  📸 TAKE PHOTO
+</button>
+
+<p id="status">Starting camera...</p>
+
+<script>
+
+const SCRIPT_URL =
+  "https://script.google.com/a/macros/su.edu.eg/s/AKfycbzB12MPX_m9rjJU-Ja2Fj3HJAxJzcW6Jh97qHXMlc3Dps2f0DhCz9KfL0buqSatC2xI/exec";
+
+const video =
+  document.getElementById("video");
+
+const canvas =
+  document.getElementById("canvas");
+
+const preview =
+  document.getElementById("preview");
+
+const takeButton =
+  document.getElementById("takeButton");
+
+const status =
+  document.getElementById("status");
+
+let cameraReady = false;
+let stream = null;
+
+
+async function startCamera() {
+
+  try {
+
+    if (!navigator.mediaDevices ||
+        !navigator.mediaDevices.getUserMedia) {
+
+      throw new Error(
+        "Camera API is not supported."
+      );
+
+    }
+
+    stream =
+      await navigator.mediaDevices.getUserMedia({
+
+        video: {
+          facingMode: {
+            ideal: "environment"
+          }
+        },
+
+        audio: false
+
+      });
+
+    video.srcObject = stream;
+
+    await video.play();
+
+    cameraReady = true;
+
+    takeButton.disabled = false;
+
+    status.innerText =
+      "✅ Camera ready. Take the photo.";
+
+  }
+
+  catch (error) {
+
+    cameraReady = false;
+
+    takeButton.disabled = true;
+
+    status.innerText =
+      "❌ Camera error: " +
+      error.name +
+      " — " +
+      error.message;
+
+  }
+
+}
+
+
+takeButton.addEventListener(
+  "click",
+  takePhoto
+);
+
+
+async function takePhoto() {
+
+  if (!cameraReady) {
+
+    alert("Camera is not ready.");
+
+    return;
+
+  }
+
+
+  const studentID =
+    document
+      .getElementById("studentID")
+      .value
+      .trim();
+
+
+  const step =
+    document
+      .getElementById("step")
+      .value;
+
+
+  if (!studentID) {
+
+    alert("Please enter your Student ID.");
+
+    return;
+
+  }
+
+
+  if (!step) {
+
+    alert("Please select the step.");
+
+    return;
+
+  }
+
+
+  if (
+    video.videoWidth === 0 ||
+    video.videoHeight === 0
+  ) {
+
+    alert(
+      "Camera image is not available."
+    );
+
+    return;
+
+  }
+
+
+  canvas.width =
+    video.videoWidth;
+
+  canvas.height =
+    video.videoHeight;
+
+
+  const context =
+    canvas.getContext("2d");
+
+
+  context.drawImage(
+    video,
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+
+  const imageData =
+    canvas.toDataURL(
+      "image/jpeg",
+      0.90
+    );
+
+
+  const base64 =
+    imageData.split(",")[1];
+
+
+  preview.src =
+    imageData;
+
+  preview.style.display =
+    "block";
+
+
+  status.innerText =
+    "Uploading...";
+
+  takeButton.disabled =
+    true;
+
+
+  const data = {
+
+    studentID: studentID,
+
+    step: step,
+
+    photo: base64
+
+  };
+
+
+  try {
+
+    const formData =
+      new URLSearchParams();
+
+    formData.append(
+      "data",
+      JSON.stringify(data)
+    );
+
+
+    await fetch(
+      SCRIPT_URL,
+      {
+        method: "POST",
+        mode: "no-cors",
+        body: formData
+      }
+    );
+
+
+    status.innerText =
+      "✅ Photo submitted successfully.";
+
+  }
+
+  catch (error) {
+
+    status.innerText =
+      "❌ Upload failed: " +
+      error.message;
+
+    takeButton.disabled =
+      false;
+
+  }
+
+}
+
+startCamera();
+
+</script>
+
+</body>
+</html>
+```
